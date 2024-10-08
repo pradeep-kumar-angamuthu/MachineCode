@@ -1,6 +1,7 @@
 import random
 import time
 import sqlite3
+import os
 
 # Function to generate random values based on the given field's constraints
 def generate_tool_offset():
@@ -13,7 +14,10 @@ def generate_tool_in_use(tool_capacity):
     return random.randint(1, tool_capacity)
 
 # Connect to the SQLite database
-conn = sqlite3.connect('machine_data.db')
+script_dir = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(script_dir, 'machine_data.db')
+print(db_path)
+conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
 # Create tables (machines, axes, and machine_data)
@@ -32,10 +36,9 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS machine_data (
                     axis_id INTEGER, 
                     tool_offset REAL, 
                     feedrate INTEGER, 
-                    tool_in_use INTEGER, 
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY(machine_id) REFERENCES machines(machine_id),
-                    FOREIGN KEY(axis_id) REFERENCES axes(axis_id))''')
+                    tool_in_use INTEGER NULL, 
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )''')
 
 # Define 20 machines with unique machine_ids and tool_capacity
 machines = [(81258856 + i, f'EMXP{i+1}', 24) for i in range(20)]
@@ -49,7 +52,7 @@ conn.commit()
 
 # Set update intervals
 tool_update_interval = 300  # 5 minutes for tool_in_use
-general_update_interval = 900  # 15 minutes for other fields
+general_update_interval = 900  # 15 minutes for other fields 900
 
 # Keep track of time
 last_general_update = time.time()
@@ -66,9 +69,9 @@ while True:
                 tool_offset = generate_tool_offset()
                 feedrate = generate_feedrate()
 
-                cursor.execute('''INSERT INTO machine_data (machine_id, axis_id, tool_offset, feedrate, tool_in_use) 
-                                  VALUES (?, (SELECT axis_id FROM axes WHERE axis_name = ?), ?, ?, NULL)''', 
-                               (machine[0], axis, tool_offset, feedrate))
+                cursor.execute('''INSERT INTO machine_data (machine_id, axis_id, tool_offset, feedrate, tool_in_use, timestamp) 
+                                  VALUES (?, (SELECT axis_id FROM axes WHERE axis_name = ?), ?, ?, ?, datetime('now'))''', 
+                               (machine[0], axis, tool_offset, feedrate,0))
                 print("machine data inserted")
 
         conn.commit()

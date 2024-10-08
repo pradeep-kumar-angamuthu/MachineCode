@@ -19,13 +19,13 @@ class CustomUser(AbstractUser):
 
 # models.py
 class Machine(models.Model):
-    machine_data_id = models.AutoField(primary_key=True,default=1)
+    machine_data_id = models.AutoField(primary_key=True)
     machine_id = models.IntegerField(default=1)
     axis_id = models.IntegerField(null=True)  # Change to IntegerField to match your table schema
     tool_offset = models.FloatField()  # Real type in SQLite corresponds to FloatField in Django
     feedrate = models.IntegerField()  # Matches INTEGER in SQLite
-    tool_in_use = models.IntegerField()  # You can use BooleanField for true/false (0/1)
-    timestamp = models.DateTimeField()  # Use auto_now_add for default current timestamp
+    tool_in_use = models.IntegerField(null=True)  # You can use BooleanField for true/false (0/1)
+    timestamp = models.DateTimeField(auto_now_add=True)  # Use auto_now_add for default current timestamp
 
     class Meta:
         db_table = 'machine_data'  # Ensure this matches your SQLite table name
