@@ -21,7 +21,7 @@ This project is a Python script designed to generate and store machine data in a
 
 
 
-# DRF END POINTS
+# DRF API END POINTS
 
 based on the access token api the user role will be determined which will be used to fetch the details machine from database
 
